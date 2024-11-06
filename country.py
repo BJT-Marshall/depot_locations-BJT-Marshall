@@ -174,6 +174,19 @@ class Location:
         else:
             self.region = region
 
+    #Helper function to create the 'settlement' property, as well as maintain consitency between the 'depot' attribute and the 'settlement' property.
+    def _get_settlement(self):
+        """Given the bool value of the 'depot' attribute, returns the desired value of the 'settlement' property."""
+        if self.depot is False:
+            return True
+        else:
+            return False
+    
+    #The 'settlement' property. Always the boolean negation of the depot attribute.
+    settlement = property(fget = _get_settlement, fset = None, fdel = None, doc = "A boolean property representing whether the Location object is a settlement or not.")
+        
+    
+
     def __str__(self):
         raise NotImplementedError
 

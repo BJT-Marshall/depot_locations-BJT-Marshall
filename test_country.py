@@ -57,6 +57,7 @@ def test_capitalisation_of_strings():
 from country import Location
 
 def test_Location___init__():
+    """Tests that each attribute of a 'Location' object is of the correct type, and has been assigned a sensible value."""
     #Testing incorrect parameter type errors are passed correctly
     with raises(TypeError) as exception:
         l1 = Location(2,"Region",1,1,True)
@@ -84,3 +85,19 @@ def test_Location___init__():
         l10 = Location("Name","Region",1,-numpy.pi-0.000001,True)
 
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#Testing the 'settlement' property and its helper function '_get_settlement'.
+from country import Location
+def test_settlement():
+    """Tests that the 'settlement' property is assigned the correct value for an objects 'depot' attribute.
+    Checks that the relation between the 'depot' attribute and the 'settlement' property remains consistent upon alteration of the 'depot' attribute."""
+    l1 = Location("Name","Region",1,1,True)
+    assert l1.settlement != l1.depot
+    l2 = Location("Name","Region",1,1,False)
+    assert l2.settlement != l2.depot
+
+    #Test 'settlement' remains consitent with 'depot'
+
+    l1.depot = False
+    assert l1.settlement != l1.depot
+    l2.depot = True
+    assert l2.settlement != l2.depot
