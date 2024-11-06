@@ -4,6 +4,10 @@ import numpy
 
 import matplotlib
 
+import warnings
+
+from dataclasses import dataclass
+
 from typing import TYPE_CHECKING, List, Optional
 
 from plotting_utilities import plot_country, plot_path
@@ -72,8 +76,33 @@ def travel_time(
     
     return time
 
+def capitalisation_of_strings(string):
+        """Reformats a string, capitalising the first letter of each word only."""
+        cap_string = ""
+        string = string.lower()
+        string = string.strip()
+        list_of_words_plus_whitespace = string.split(" ")
+        list_of_words =[list_of_words_plus_whitespace[i] for i in range(len(list_of_words_plus_whitespace)) if list_of_words_plus_whitespace[i] != ""]
+        list_of_stripped_words = [list_of_words[i].strip() for i in range(len(list_of_words))]
+        words_first_letter = [list_of_stripped_words[i][0] for i in range(len(list_of_stripped_words))]
+        words_without_first_letter = [list_of_stripped_words[i][1:] for i in range(len(list_of_stripped_words))]
+        for j in range(len(words_first_letter)):
+            words_first_letter[j] = words_first_letter[j].upper()
+        cap_words= [words_first_letter[i] + words_without_first_letter[i] for i in range(len(words_first_letter))]
+        for k in range(len(cap_words)-1):
+            cap_string = cap_string + cap_words[k]+" "
+        cap_string = cap_string+ cap_words[len(cap_words)-1]
+            
+        return(cap_string)
 
+@dataclass
 class Location:
+    """Class for creating location objects with attributes containing name, region, depot status and location data."""
+    name : str
+    region : str
+    r : float
+    theta : float
+    depot : bool
     def __repr__(self):
         """
         Do not edit this function.
@@ -85,6 +114,65 @@ class Location:
         correctly due to these internal Python caveats.
         """
         return self.__str__()
+    
+    def __init__(self,name:str,region:str,r,theta,depot:bool):
+        """Initialisation of a 'Location' object, with attributes 
+        'name' [N/A, str], 
+        'region' [N/A, str], 
+        'r' [m, float], 
+        'theta' [rad, float] 
+        'depot' [N/A, bool]"""
+
+        #Handling 'r' and 'theta' inputs
+
+        if isinstance(r, float) is True or isinstance(r, int) is True:
+            if r<0:
+                raise ValueError("'r' should have a value greater than or equal to zero.")
+            else:
+                self.r = float(r)
+        else:
+            raise TypeError("'r' should be inputted as an integer or floating point number.")
+
+
+        if isinstance(theta, float) is True or isinstance(theta, int) is True:
+            if theta<-numpy.pi or theta>numpy.pi:
+                raise ValueError("'theta' should have a value between, or equal to, negative pi and positive pi.")
+            else:
+                self.theta = float(theta)
+        else:
+            raise TypeError("'theta' should be inputted as an integer or floating point number.")
+        
+        
+        #Handling and setting 'depot' input
+
+        if type(depot) is not bool:
+            raise TypeError("'depot' should be a boolean value.")
+        else:
+            self.depot = depot
+        
+        #Handling and setting 'name' and 'region' inputs
+
+        if type(name) is not str:
+            raise TypeError("'name' should be a string.")
+        
+        if type(region) is not str:
+            raise TypeError("'region' should be a string.")
+        
+        #if name or region are not already in the correct form
+        temp_name = capitalisation_of_strings(name)
+        if name != temp_name:
+            self.name = temp_name
+            warnings.warn("Location names should have the first character of each word capitalised, no excess whitespace and no additional and only one whitespace character between each word. The input has been reformatted to fit this regime.")
+        else:
+            self.name = name
+        
+
+        temp_region = capitalisation_of_strings(region)
+        if region != temp_region:
+            self.region = temp_region
+            warnings.warn("Region names should have the first character of each word capitalised, no excess whitespace and no additional and only one whitespace character between each word. The input has been reformatted to fit this regime.")
+        else:
+            self.region = region
 
     def __str__(self):
         raise NotImplementedError
