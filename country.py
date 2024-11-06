@@ -1,5 +1,9 @@
 from __future__ import annotations
 
+import numpy
+
+import matplotlib
+
 from typing import TYPE_CHECKING, List, Optional
 
 from plotting_utilities import plot_country, plot_path
@@ -14,9 +18,59 @@ def travel_time(
     distance,
     different_regions,
     locations_in_dest_region,
-    speed,
+    speed=4.75,
 ):
-    raise NotImplementedError
+    """
+    Computes the time taken to travel between two locations, seperated by 'distance' meters, travelling at 'speed' meters per second. 
+    Taking into account delays due to interregional border control by the factor (1+('different_regions'*'locations_in_dest_region')/10).
+    """
+    #Function represents the equation 't = (D/3600S)(1+RN/10)'.
+    #Note: 'speed' has a default value of 4.75 m/s.
+    #Where D is 'distance' [m, float], S is 'speed' [m/s, float], R is 'different_regions' [N/A, bool] and N is 'locations_in_dest_region' [N/A, int].
+    
+    #If 'distance' or 'speed' are integer values, convert them into floats
+    if type(distance) is int:
+        distance = float(distance)
+    if type(speed) is int:
+        speed = float(speed)
+
+    #Check input types
+    if type(distance) is not float:
+        print(type(distance))
+        raise TypeError("'distance' should be a float or integer value.")
+    if type(speed) is not float:
+        raise TypeError("'speed' should be a float or integer value.")
+    if type(different_regions) is not bool:
+        raise TypeError("'different_regions' should he a boolean value.")
+    if type(locations_in_dest_region) is not int:
+        raise TypeError("'locations_in_dest_region' should be an integer value.")
+
+    #Check input values
+    if distance<0:
+        raise ValueError("'distance' should be a positive value.")
+    if distance==0 and different_regions is True:
+        raise ValueError("If 'different regions' is True, then distance cannot be zero and visa versa.")
+    if distance==0 and different_regions is False and locations_in_dest_region !=1:
+        raise ValueError("If 'distance' is zero and 'different_regions' is false, then 'locations_in_dest_region' must be one.")
+    if distance!=0 and different_regions is False and locations_in_dest_region ==1:
+        raise ValueError("If 'locations_in_dest_region' is one and 'different_regions' is false, then 'distance' must be zero.")
+    if distance==0 and different_regions is True and locations_in_dest_region ==1:
+        raise ValueError("If 'distance' is zero and 'locations_in_dest_region' is one, then 'locations_in_dest_region' must be one.")    
+    if speed<=0:
+        raise ValueError("'speed' should be a positive, non-zero value for a finite time to be calculated.")
+    if locations_in_dest_region<1:
+        raise ValueError("'locations_in_dest_region' should be a positive value, greater than or equal to 1.")
+    
+    #Implementation of travel time function
+    one_hour_distance = 3600*speed
+    optimal_time = distance/(one_hour_distance)
+    time=optimal_time*(1+(different_regions*locations_in_dest_region)/10)
+    
+    #Check the final value of 'time' is greater than or equal to zero and therefore a valid travel time
+    if time<0:
+        raise ValueError("'time' has returned as a negative value")
+    
+    return time
 
 
 class Location:
