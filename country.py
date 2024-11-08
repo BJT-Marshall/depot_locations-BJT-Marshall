@@ -95,6 +95,17 @@ def capitalisation_of_strings(string):
             
         return(cap_string)
 
+def rounding_correction(x):
+    """Rounding function to round the input to two decimal places correctly and overwrite the 'numpy.round' methods 'even-rounding' preference."""
+    decimal_factor = 100 #10**2 To round to 2 decimal places.
+    if type(x) is float:    
+        if x > 0:
+            return float(numpy.floor(x*decimal_factor+0.5))/decimal_factor 
+        else:
+            return float(numpy.ceil(x*decimal_factor-0.5))/decimal_factor
+    else:
+        raise TypeError("The input to 'rounding correction' should be a float value.")
+
 @dataclass
 class Location:
     """Class for creating location objects with attributes containing name, region, depot status and location data."""
@@ -179,8 +190,10 @@ class Location:
         """Given the bool value of the 'depot' attribute, returns the desired value of the 'settlement' property."""
         if self.depot is False:
             return True
-        else:
+        elif self.depot is True:
             return False
+        else: 
+            raise TypeError("'depot' should be a boolean value to create the settlement property.")
     
     #The 'settlement' property. Always the boolean negation of the depot attribute.
     settlement = property(fget = _get_settlement, fset = None, fdel = None, doc = "A boolean property representing whether the Location object is a settlement or not.")
@@ -188,7 +201,21 @@ class Location:
     
 
     def __str__(self):
-        raise NotImplementedError
+        """Alters the output of the 'print' function when called on a 'Location' object to display its attributes in a user friendly format."""
+        if self.depot is True:
+            location_type_string = " [depot] "
+        elif self.depot is False:
+            location_type_string = " [settlement] "
+        else:
+            raise TypeError("'depot' should be a boolean value.")
+        theta_in_pi = self.theta/numpy.pi #'theta' in units of pi
+        if numpy.floor(theta_in_pi *100)%2 == 0 and str(int(numpy.floor(theta_in_pi *1000)))[-1] == "5":
+            theta_rounded = rounding_correction(theta_in_pi)
+        else:
+            theta_rounded= numpy.round(theta_in_pi,2)
+        location_string = self.name + location_type_string + "in " + self.region + " @ (" +str(self.r) +"m, "+str(theta_rounded)+"pi)"
+        return location_string
+
 
     def distance_to(self, other):
         raise NotImplementedError

@@ -95,9 +95,64 @@ def test_settlement():
     l2 = Location("Name","Region",1,1,False)
     assert l2.settlement != l2.depot
 
-    #Test 'settlement' remains consitent with 'depot'
+    #Tests 'settlement' remains consitent with 'depot'
 
     l1.depot = False
     assert l1.settlement != l1.depot
     l2.depot = True
     assert l2.settlement != l2.depot
+
+    #Tests incorrect parameter type errors are thrown correctly
+    l1.depot = 3
+    with raises(TypeError) as exception:
+        print(l1.settlement)
+
+#-------------------------------------------------------------------------------------------------------------------------------------------------------
+#Testing 'rounding_correction' function
+from country import rounding_correction
+def test_rounding_correction():
+    """Tests that the 'rounding_correction' function returns correct values and raises paraneter type errors if the input is not a float."""
+    #Testing type errors are raised correctly.
+    with raises(TypeError) as exception:
+        rounding_correction(True)
+    with raises(TypeError) as excpetion:
+        rounding_correction(4)
+    with raises(TypeError) as exception:
+        rounding_correction("string")
+    #Testing that outputs returned are correct.
+
+    assert rounding_correction(1.503) ==1.5
+    assert rounding_correction(1.055) == 1.06
+    assert rounding_correction(1.045) == 1.05
+    assert rounding_correction(1.001) == 1.0
+
+#-----------------------------------------------------------------------------------------------------------------------------------------------------------
+#Testing the '__str__' method in the 'Location' class
+
+def test_Location___str__():
+    """Tests that the '__str__' method of the 'Location' class returns strings in the format desired."""
+    test_theta = numpy.pi
+    test_obj = Location("Name","Region",3,test_theta,True)
+    assert str(test_obj) == "Name [depot] in Region @ (3.0m, 1.0pi)"
+    test_obj.depot = False
+    assert str(test_obj) == "Name [settlement] in Region @ (3.0m, 1.0pi)"
+
+    #Testing that setting 'depot' to a non boolean value throws a type error
+    test_obj.depot = 2
+    with raises(TypeError) as exception:
+        print(test_obj)
+    test_obj.depot = False
+
+    #Testing that the rounding of the attribute 'theta' is performed and displayed correctly in the output of the '__str__' method.
+
+    test_obj.theta = 1.001*numpy.pi
+    assert str(test_obj) == "Name [settlement] in Region @ (3.0m, 1.0pi)"
+
+    test_obj.theta = 1.055*numpy.pi
+    assert str(test_obj) == "Name [settlement] in Region @ (3.0m, 1.06pi)"
+
+    test_obj.theta = 1.045*numpy.pi
+    assert str(test_obj)== "Name [settlement] in Region @ (3.0m, 1.05pi)"
+
+    test_obj.theta = 1.503*numpy.pi
+    assert str(test_obj) == "Name [settlement] in Region @ (3.0m, 1.5pi)"
