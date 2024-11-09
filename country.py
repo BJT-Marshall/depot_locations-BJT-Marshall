@@ -255,7 +255,27 @@ class Location:
         return calculated_distance
 
 
+@dataclass
 class Country:
+    """A class for creating country objects, containing multiple locations where each location is an instance of the 'Location' class.
+    Has the attribute '_all_locations', a tuple containing the 'Location' objects."""
+    _all_locations : tuple
+
+    def __init__(self, list_of_locations):
+        """Initialisation of a 'Country' object with the attribute '_all_locations' containing a tuple of 'Location' objects."""
+        if type(list_of_locations) is not list:
+            raise TypeError("The input parameter should be a list of 'Location' objects.")
+        else:
+            for i in range(len(list_of_locations)):
+                if isinstance(list_of_locations[i], Location) is False:
+                    raise TypeError("The inputted list should have 'Location' objects as its elements.")
+                else:
+                    index_list = [index for index in range(len(list_of_locations)) if index != i]
+                    for j in index_list:
+                        if list_of_locations[i] == list_of_locations[j]:
+                            raise ValueError("There exists duplicate 'Location' objects in the inputted list.")
+            self._all_locations = tuple(list_of_locations)
+
 
     def travel_time(self, start_location, end_location):
         raise NotImplementedError

@@ -222,6 +222,7 @@ def test_distance_to():
 #Test the '__eq__' method from the 'Location' class.
 
 def test___eq__():
+    """Testing the '__eq__' method in the 'Location' class"""
     test_obj = Location("Name", "Region",3,3,True)
     
     #Testing that the other location parameter type error is thrown correctly.
@@ -239,4 +240,29 @@ def test___eq__():
     assert (test_obj == test_obj4) is False
 
 #-----------------------------------------------------------------------------------------------------------------------------------------------------------
+from country import Country
 
+#Testing the initialisation method of the 'Country' class.
+
+def test_Country___init__():
+    """Testing the '__init__' method for the 'Country' class."""
+    test_location1 = Location("Name", "Region", 3, 3, True)
+    test_location2 = Location("Name2", "Region2", 3, 3, True)
+    test_location3 = Location("Name3", "Region3", 3, 3, True)
+    list1 = [test_location1, test_location2, test_location3]
+    list2 = [test_location1, test_location2, test_location3,test_location1]
+
+    #Testing that parmeter type errors are thrown correctly.
+    with raises(TypeError) as exception:
+        test_country = Country("string")
+    
+    #Testing that the '_all_locations' attribute is created correctly.
+    test_country1 = Country(list1)
+    assert test_country1._all_locations == (test_location1,test_location2,test_location3)
+
+    #Testing the duplicated location error is thrown correctly.
+    with raises(ValueError) as exception:
+        test_country2 = Country(list2)
+
+#------------------------------------------------------------------------------------------------------------------------------------------------------
+    
