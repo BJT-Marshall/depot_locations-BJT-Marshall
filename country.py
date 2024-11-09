@@ -185,6 +185,12 @@ class Location:
         else:
             self.region = region
 
+    #Method to return an objects attributes 'r' and 'theta'.
+    def __getattributes_r_theta__(self):
+        """Returns an objects attributes 'r' and 'theta' as a tuple '(r,theta)'."""
+        tuple_r_theta = (self.r,self.theta)
+        return tuple_r_theta
+
     #Helper function to create the 'settlement' property, as well as maintain consitency between the 'depot' attribute and the 'settlement' property.
     def _get_settlement(self):
         """Given the bool value of the 'depot' attribute, returns the desired value of the 'settlement' property."""
@@ -218,7 +224,19 @@ class Location:
 
 
     def distance_to(self, other):
-        raise NotImplementedError
+        """Calculates the distance between two location objects using their polar co-ordinates '(r,theta)'.
+        The calculated distance is in the units of the polar radial co-ordinates 'r' of the objects passed into the method, meters."""
+        
+        if type(other) is not Location:
+            raise TypeError("The other location parameter should be a 'Location' object.")
+        else:
+            #Calculating the distance using the formula: d = sqrt(r1^2 + r2^2 - 2r1r2 cos(theta1-theta2)).
+            other_attributes = other.__getattributes_r_theta__()
+            other_r = other_attributes[0]
+            other_theta = other_attributes[1]
+            calculated_distance = numpy.sqrt(self.r**2 + other_r**2 - 2*self.r*other_r * numpy.cos(self.theta - other_theta))
+        
+        return calculated_distance
 
 
 class Country:

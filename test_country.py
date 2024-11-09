@@ -1,6 +1,7 @@
 #Test file for functions from 'utilities.py' as well as the 'Location' and 'Country' classes.
 #Tests are made using the pytest framework.
 from pytest import raises
+import pytest
 import numpy
 import matplotlib
 
@@ -156,3 +157,68 @@ def test_Location___str__():
 
     test_obj.theta = 1.503*numpy.pi
     assert str(test_obj) == "Name [settlement] in Region @ (3.0m, 1.5pi)"
+
+#-----------------------------------------------------------------------------------------------------------------------------------------------------------
+#Testing the '__get_attributes_r_theta__' method.
+def test___getattributes_r_theta__():
+    """Testing the '__get_attributes_r_theta' getter method for the 'Location' class."""
+    test_obj = Location("Name", "Region", 3,numpy.pi,True)
+    assert test_obj.__getattributes_r_theta__() == (3,numpy.pi)
+
+#--------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#Testing the 'distance_to' method.
+def test_distance_to():
+    """Testing the 'distance_to' method of the 'Location' class."""
+    test_obj = Location("Name", "Region", 3, 0, True)
+    test_obj1 = Location("Name", "Region", 3, 0, True)
+    
+    #Testing that parameter type errors are thrown correctly.
+    with raises(TypeError) as exception:
+        test_obj.distance_to("string")
+
+    #Testing that the method calculates the correct values.
+    
+    #Testing that parralel locations will return the difference in 'r' co-ordinates as their distance.
+    assert test_obj.distance_to(test_obj1) == 0
+
+    #Non-zero parralel distance case.
+    test_obj.r = 5
+    assert test_obj.distance_to(test_obj1) == 2
+
+    #Equal non-zero 'theta' case.
+    test_obj.theta = 2
+    test_obj1.theta = 2
+    assert test_obj.distance_to(test_obj1) == 2
+
+
+    #Testing that the distance_to function is symettric. 
+    assert test_obj.distance_to(test_obj1) == test_obj1.distance_to(test_obj)
+
+    #Testing that two locations that form a right triangle with the polar origin have a distance as predicted by Pythagerous' Theorem.
+
+    test_obj.r = 3
+    test_obj.theta = 0
+    test_obj1.r = 5
+    test_obj1.theta = numpy.arcsin(numpy.sqrt(test_obj1.r**2 - test_obj.r**2)/test_obj1.r)
+
+    assert test_obj.distance_to(test_obj1) == numpy.sqrt(test_obj1.r**2 - test_obj.r**2) #sqrt(5^2 - 3^2) = sqrt(16) = 4
+
+    #Testing two locations with anti-parralel polar vectors (i.e. theta = 0, theta1 = numpy.pi)
+
+    test_obj1.theta = numpy.pi
+
+    assert test_obj.distance_to(test_obj1) == test_obj.r + test_obj1.r
+
+    #Testing equilateral triangle case.
+
+    test_obj.r = 3
+    test_obj.theta = numpy.pi/6
+    test_obj1.r = 3
+    test_obj1.theta = -numpy.pi/6
+
+    assert test_obj.distance_to(test_obj1) == pytest.approx(test_obj1.r,0.1)
+
+#------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
