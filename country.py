@@ -197,6 +197,9 @@ class Location:
                 return True
             else:
                 return False
+            
+    def __hash__(self) -> str:
+        return hash(self.name + self.region)
 
     #Method to return an objects attributes 'r' and 'theta'.
     def __getattributes_r_theta__(self):
