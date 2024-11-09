@@ -219,6 +219,24 @@ def test_distance_to():
     assert test_obj.distance_to(test_obj1) == pytest.approx(test_obj1.r,0.1)
 
 #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#Test the '__eq__' method from the 'Location' class.
 
+def test___eq__():
+    test_obj = Location("Name", "Region",3,3,True)
+    
+    #Testing that the other location parameter type error is thrown correctly.
+    with raises(TypeError) as exception:
+        test_obj == "String"
 
+    test_obj1 = Location("Name", "Region1",3,3,True)
+    test_obj2 = Location("Name", "Region",3,3,True)
+    test_obj3 = Location("Name3", "Region3",3,3,True)
+    test_obj4 = Location("Name4", "Region",3,3,True)
+
+    assert (test_obj == test_obj1) is False
+    assert (test_obj == test_obj2) is True
+    assert (test_obj == test_obj3) is False
+    assert (test_obj == test_obj4) is False
+
+#-----------------------------------------------------------------------------------------------------------------------------------------------------------
 

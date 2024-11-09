@@ -185,6 +185,19 @@ class Location:
         else:
             self.region = region
 
+    #Equity operator between two 'Location' objects.
+    def __eq__(self, other):
+        """Overloading the comparison operator '==' to compare the 'name' and 'region' attributes of two 'Location' objects."""
+        if type(other) is not Location:
+            raise TypeError("The other location parameter should be a 'Location' object.")
+        else:
+            self_list = [self.name, self.region]
+            other_list = [other.name, other.region]
+            if self_list == other_list:
+                return True
+            else:
+                return False
+
     #Method to return an objects attributes 'r' and 'theta'.
     def __getattributes_r_theta__(self):
         """Returns an objects attributes 'r' and 'theta' as a tuple '(r,theta)'."""
