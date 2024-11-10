@@ -299,3 +299,79 @@ def test_read_country_data():
         assert data_obj._all_locations[0] == test_location_obj
     
 #------------------------------------------------------------------------------------------------------------------------------------------------
+#Testing the 'settlements' property of the 'Country' class.
+
+def test_settlements():
+    """Testing the 'settlements' property of the 'Country' class."""
+    l1 = Location("Name", "Region", 1,1,True)
+    l2 =Location("Name", "Region1",1,1,False)
+
+    test_country = Country([l1,l2])
+
+    #Testing that the 'settlements' property returns correctly.
+    assert test_country.settlements == [l2]
+
+    l2.depot = True
+    assert test_country.settlements == []
+
+    l1.depot = False
+    l2.depot = False
+    assert test_country.settlements == [l1,l2]
+
+#--------------------------------------------------------------------------------------------------------------------------------------------
+#Testing the 'depots' property of the 'Country' class.
+
+def test_depots():
+    """Testing the 'depots' property of the 'Country' class."""
+    l1 = Location("Name", "Region", 1,1,True)
+    l2 =Location("Name", "Region1",1,1,False)
+
+    test_country = Country([l1,l2])
+
+    #Testing that the 'settlements' property returns correctly.
+    assert test_country.depots == [l1]
+
+    l2.depot = True
+    assert test_country.depots == [l1,l2]
+
+    l1.depot = False
+    l2.depot = False
+    assert test_country.depots == []
+
+#----------------------------------------------------------------------------------------------------------------------------------------------------
+#Testing the 'n_settlements' property of the 'Country' class.
+
+def test_n_settlements():
+    """Testing the 'n_settlements' property of the 'Country' class."""
+    l1 = Location("Name", "Region", 1,1,True)
+    l2 =Location("Name", "Region1",1,1,False)
+    test_country = Country([l1,l2])
+    
+    assert test_country.n_settlements == 1
+
+    l1.depot = False
+    assert test_country.n_settlements == 2
+
+    l1.depot = True
+    l2.depot = True
+    assert test_country.n_settlements == 0
+
+#----------------------------------------------------------------------------------------------------------------------------------------------------
+#Testing the 'n_depots' property of the 'Country' class.
+
+def test_n_depots():
+    """Testing the 'n_settlements' property of the 'Country' class."""
+    l1 = Location("Name", "Region", 1,1,True)
+    l2 =Location("Name", "Region1",1,1,False)
+    test_country = Country([l1,l2])
+    
+    assert test_country.n_depots == 1
+
+    l1.depot = False
+    assert test_country.n_depots == 0
+
+    l1.depot = True
+    l2.depot = True
+    assert test_country.n_depots == 2
+
+#----------------------------------------------------------------------------------------------------------------------------------------------------

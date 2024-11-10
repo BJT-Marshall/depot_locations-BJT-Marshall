@@ -277,6 +277,47 @@ class Country:
             self._all_locations = tuple(list_of_locations)
 
 
+    #Settlements property.
+    def _get_settlements(self):
+        """Given a country object with attribute '_all_locations' containing a list of 'Location' objects, returns the list of 'Location' objects with a 'True' 'settlement' property."""
+        list_of_settlements = []
+        for location in self._all_locations:
+            if type(location.settlement) is not bool:
+                raise TypeError("The 'settlement' property of the 'Location' objects in the '_all_locations' attribute should be boolean values.")
+            elif location.settlement is True:
+                list_of_settlements.append(location)
+        return list_of_settlements
+    settlements = property(fget=_get_settlements, fset=None ,fdel=None, doc="A list property containing the 'Location' objects with a 'True' 'settlement' property.")
+
+    #n_settlements property.
+    def _get_n_settlements(self):
+        """Given a country object with attribute '_all_locations' containing a list of 'Location' objects, returns the length of the list of 'Location' objects with a 'True' 'settlement' property."""
+        len_settlements_list = len(self.settlements)
+        return len_settlements_list
+    n_settlements = property(fget=_get_n_settlements,fset = None,fdel = None, doc = "An integer property containing the number or 'Location' objects with a 'True' 'settlement' property.")
+
+
+    #Depots property.
+    def _get_depots(self):
+        """Given a country object with attribute '_all_locations' containing a list of 'Location' objects, returns the list of 'Location' objects with a 'True' 'depot' property."""
+        list_of_depots = []
+        for location in self._all_locations:
+            if type(location.depot) is not bool:
+                raise TypeError("The 'depot' attribute of the 'Location' objects in the '_all_locations' attribute should be boolean values.")
+            elif location.depot is True:
+                list_of_depots.append(location)
+        return list_of_depots
+    depots = property(fget=_get_depots, fset=None ,fdel=None, doc="A list property containing the 'Location' objects with a 'True' 'depot' property.")
+
+    #n_depots property.
+    def _get_n_depots(self):
+        """Given a country object with attribute '_all_locations' containing a list of 'Location' objects, returns the length of the list of 'Location' objects with a 'True' 'depot' property."""
+        len_depots_list = len(self.depots)
+        return len_depots_list
+    n_depots = property(fget=_get_n_depots,fset = None,fdel = None, doc = "An integer property containing the number or 'Location' objects with a 'True' 'depot' property.")
+
+
+
     def travel_time(self, start_location, end_location):
         raise NotImplementedError
 
