@@ -375,3 +375,40 @@ def test_n_depots():
     assert test_country.n_depots == 2
 
 #----------------------------------------------------------------------------------------------------------------------------------------------------
+#Testing the 'travel_time' method in the 'Country' class.
+def test_travel_time():
+    """Testing the 'travel_time' method in the 'Country' class."""
+    l1 = Location("Name1","Region1",1,1,True)
+    l2 = Location("Name2","Region2",1,1,False)
+    c1 = Country([l1,l2])
+    
+    #Testing argument type errors are thrown correctly.
+    with raises(TypeError) as exception:
+        c1.travel_time(l1,3)
+    with raises(TypeError) as exception:    
+        c1.travel_time(3,l2)
+    with raises(TypeError) as exception:
+        c1.travel_time(3,3)
+    
+    l3 = Location("Name3","Region3",1,1,True)
+
+    #Testing argument value errors are thrown correctly.
+    with raises(ValueError) as exception:
+        c1.travel_time(l1,l3)
+    with raises(ValueError) as exception:
+        c1.travel_time(l3,l2)
+
+    #Test cases for 'travel_time'.
+    l4 = Location("Name4","Region4",3,0,True)
+    l5 = Location("Name5","Region4",3,numpy.pi,True)
+    c2 = Country([l4,l5])
+    assert c2.travel_time(l4,l5) == travel_time(6,False,2)
+
+    #Test that the interregional delay factor is calculated correctly for travel_time
+    l5.region = "Region5"
+    c3 = Country([l4,l5])
+    assert c3.travel_time(l4,l5) == travel_time(6,True,1)
+
+    #Test if travel time returns zero when start_location = end_location
+    assert c3.travel_time(l4,l4) == 0
+

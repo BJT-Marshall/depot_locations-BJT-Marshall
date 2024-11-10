@@ -40,7 +40,6 @@ def travel_time(
 
     #Check input types
     if type(distance) is not float:
-        print(type(distance))
         raise TypeError("'distance' should be a float or integer value.")
     if type(speed) is not float:
         raise TypeError("'speed' should be a float or integer value.")
@@ -251,6 +250,7 @@ class Location:
             other_r = other_attributes[0]
             other_theta = other_attributes[1]
             calculated_distance = numpy.sqrt(self.r**2 + other_r**2 - 2*self.r*other_r * numpy.cos(self.theta - other_theta))
+            calculated_distance = float(calculated_distance)
         
         return calculated_distance
 
@@ -319,7 +319,29 @@ class Country:
 
 
     def travel_time(self, start_location, end_location):
-        raise NotImplementedError
+        """Calculates the travel time between two locations represented by 'Location' objects, within a 'Country' object, using the 'travel_time' function. Returns the travel time in hours."""
+        #Raise value errors if one, or both, of arguments are not elements of the 'Country' objects '_all_locations' attribute or 'Location' objects at all.
+        if isinstance(start_location, Location) is False or isinstance(end_location, Location) is False:
+            raise TypeError("Arguments of the 'travel_time' method should be 'Location' objects.")
+        elif start_location not in self._all_locations:
+            raise ValueError("Arguments of the 'travel_time' method should be 'Location' objects in the 'Country' objects '_all_locations' attribute.")
+        elif end_location not in self._all_locations:
+            raise ValueError("Arguments of the 'travel_time' method should be 'Location' objects in the 'Country' objects '_all_locations' attribute.")
+        
+        #Gather attributes of the 'Country' and 'Locations' classes to pass into the 'travel_time' function.
+        distance = start_location.distance_to(end_location)
+        if start_location.region == end_location.region:
+            different_region = False
+        else:
+            different_region = True
+
+        locations_in_dest_region = 0
+        for location in self._all_locations:
+            if location.region == end_location.region:
+                locations_in_dest_region +=1
+
+        time = travel_time(distance,different_region,locations_in_dest_region)
+        return time
 
     def fastest_trip_from(
         self,
