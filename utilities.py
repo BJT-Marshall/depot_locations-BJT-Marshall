@@ -6,9 +6,59 @@ import numpy as np
 
 from country import Country, Location
 
+import pathlib
+
+def fileline_to_tuple(line):
+    """Converts a line in a .csv file to a tuple of the lines comma seperated elements."""
+    if type(line) is not str:
+        raise TypeError("The argument of the 'fileline_to_tuple' function should be a string.")
+    else:
+        list_of_data = line.split(",")
+        last_catagory = list_of_data[-1]
+        last_data = last_catagory[:-1]
+        list_of_data[-1] = last_data
+        for i in range(len(list_of_data)):
+            list_of_data[i] = list_of_data[i].strip()
+        data_tuple = tuple(list_of_data)
+        return data_tuple
 
 def read_country_data(filepath):
-    raise NotImplementedError
+    """Creates an instance of the 'Country' class using the 'Location' class data held in an external .csv file passed as a 'Path' object as the argument to this function."""
+    if isinstance(filepath, pathlib.Path) is False:
+        raise TypeError("The argument to the 'read_country_data' function should be a 'Path' object.")
+    data_file = open(filepath)
+    num_lines = sum(1 for line in data_file)
+    data_file.seek(0)
+    headings_data = data_file.readline()
+    tuple_of_headings = fileline_to_tuple(headings_data)
+
+    #Mapping between the ordering of the headings in the location file to the ordering of arguments of the intialisation of a 'Location' object.
+    #Example index_map = (2,1,4,5,3) meaning the data in the csv file is ordered 'region','locaiton','theta',','depot','r'.
+    index_map = []
+    ordered_headings = ("location", "region", "r", "theta", "depot")
+    for catagory in ordered_headings:
+        i=0
+        for element in tuple_of_headings:
+            if element == catagory:
+                index_map.append(i)
+            else:
+                i +=1         
+    index_map = tuple(index_map)
+    
+    #for each line, use readline, create a location object with parameters from that data.
+    data_list_of_locations = []
+    for line in range(1,num_lines):
+        next_line = data_file.readline()
+        next_data = fileline_to_tuple(next_line)
+        if next_data[index_map[4]] == "True":
+            bool_depot = True
+        elif next_data[index_map[4]] == "False":
+            bool_depot = False
+        data_list_of_locations.append(Location(str(next_data[index_map[0]]),str(next_data[index_map[1]]),float(next_data[index_map[2]]),float(next_data[index_map[3]]),bool_depot))
+
+    country_object = Country(data_list_of_locations)
+    data_file.close()
+    return country_object
 
 
 def regular_n_gon(number_of_settlements: int) -> Country:

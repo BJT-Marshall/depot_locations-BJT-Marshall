@@ -265,4 +265,37 @@ def test_Country___init__():
         test_country2 = Country(list2)
 
 #------------------------------------------------------------------------------------------------------------------------------------------------------
+from utilities import fileline_to_tuple
+#Testing the 'fileline_to_tuple' function
+
+def test_fileline_to_tuple():
+    """Testing the 'fileline_to_tuple' function from the 'utilities.py' file."""
+
+    #Testing that the parameter type error is thrown correctly.
+    with raises(TypeError) as exception:
+        fileline_to_tuple(6)
+
+    assert fileline_to_tuple("Name, Region, r, theta, depot\n") == ("Name", "Region", "r", "theta", "depot")
+    assert fileline_to_tuple("Name  , Region, r ,    theta, depot\n") == ("Name", "Region", "r", "theta", "depot")
+    assert fileline_to_tuple("Name, Region\n") == ("Name", "Region")
+
+#-----------------------------------------------------------------------------------------------------------------------------------------------------------
+from utilities import read_country_data
+import pathlib
+#Testing the 'read_country_data' function from the 'utilities.py' file.
+
+def test_read_country_data():
+    """Testing the 'read_country_data' function from the 'utilities.py' file."""
+    #Testing that the parameter type error is thrown correcttly.
+    with raises(TypeError) as exception:
+        read_country_data("string")
+
+    #Testing the function produces the correct outputs    
+    with raises(TypeError) as exception:
+        locations_path = "locations.csv"
+        data_obj=read_country_data(locations_path)
+        assert str(data_obj._all_locations[0]) == "Darkwater Crossing [depot] in Eastmarch @ (125123.04863613259m, -0.09pi)"
+        test_location_obj = Location("Darkwater Crossing", "Eastmarch", 125123.04863613259,-0.2748108313066159,True)
+        assert data_obj._all_locations[0] == test_location_obj
     
+#------------------------------------------------------------------------------------------------------------------------------------------------
