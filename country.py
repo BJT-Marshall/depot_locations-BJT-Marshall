@@ -346,12 +346,81 @@ class Country:
     def fastest_trip_from(
         self,
         current_location,
-        potential_locations,
+        potential_locations = None,
     ):
-        raise NotImplementedError
+        """Calculates the minimum travel time needed to reach anpther location given an initial location 'Location' object as the first argument and a list of potential destination 'Location' objects as the second argument.
+        In the event of tie breaks in travel time, the location with the lower alphabetical name will be chosen and in the event of further ties, the location with the lower alphabetical region will be chosen."""
+        #Setting the defualt argument for the 'potential_locations' argument.
+        if potential_locations is None:
+            potential_locations = self.settlements
+        elif potential_locations == []:
+            return (None, None)
+
+        #Dealing with integer elements of the argument 'potential_locations'.
+        i = 0
+        time_list = []
+        for location in potential_locations:
+            if isinstance(location, Location) is True and location not in self.settlements:
+                raise ValueError("An element of 'potential_locations' is not an element of the 'Country' objects 'settlements' property.")
+            elif isinstance(location, int) is True:
+                if location in range(len(self.settlements)):
+                    location = self.settlements[location]
+                else:
+                    raise ValueError("An integer element of 'potential_locations' is an out of bounds index for the 'Country' objects 'settlements' property.")
+            i +=1
+            #Calculating the travel time between each 'potential_location' and 'current_location'.
+            time_list.append(self.travel_time(current_location, location))
+        
+        #Dealing with potential tie-breaks in travel time, name and region by alphabetical order.
+        min_time = min(time_list)
+        duplicates = [item for item in potential_locations if self.travel_time(current_location, item) == min_time]
+        duplicate_time_num = len(duplicates)
+        if duplicate_time_num != 1:
+            names = [item.name for item in duplicates]
+            min_name = min(names)
+            duplicate_names = [item for item in duplicates if item.name == min_name]
+            duplicate_name_num = len(duplicate_names)
+            if duplicate_name_num != 1:
+                regions = [item.region for item in potential_locations if item.name in names and self.travel_time(current_location,item) == min_time]
+                min_region = min(regions)
+                min_location = [location for location in potential_locations if location.name == min_name and location.region == min_region]
+            else:
+                min_location = [location for location in potential_locations if location.name == min_name and self.travel_time(current_location, location) == min_time]
+        else:
+            min_location = duplicates
+        min_location = min_location[0]
+        fastest_trip_tuple = (min_location, self.travel_time(current_location, min_location))
+        return fastest_trip_tuple
+        
+
+        
+
 
     def nn_tour(self, starting_depot):
-        raise NotImplementedError
+        """Computes the neares neighbor algorithm for the settlements in the 'settlements' property of the 'Country' object, starting from a depot 'Location' object passed as the argument.
+        Returns a tuple where the first element is the list of locations, in order, of the tour, with start and end locations being the argument depot location. The second element is the total time of the tour, calculated by the 'travel_time' method of the 'Country' class."""
+        tour = [starting_depot]
+        if len(self.settlements) == 0:
+            tour = 0
+            tour_time = 0
+        else:
+            tour_time = 0
+            unvisited = [[location, True] for location in self.settlements]
+            unvisited_loc = [location[0] for location in unvisited]
+            current_location = starting_depot
+            for location in unvisited:
+                next_stop = self.fastest_trip_from(current_location, unvisited_loc)    
+                tour.append(next_stop[0])
+                tour_time = tour_time + next_stop[1]
+                current_location = next_stop[0]
+                #Removing the visited settlement from the list of unvisited settlements.
+                location[1] = False
+                unvisited = [locations for locations in unvisited if locations[1] is True]
+                unvisited_loc = [location[0] for location in unvisited]
+        #Finishing the tour.
+        tour_time = tour_time + self.travel_time(tour[-1], starting_depot)
+        tour.append(starting_depot)
+        return tour, tour_time
 
     def best_depot_site(self, display):
         raise NotImplementedError

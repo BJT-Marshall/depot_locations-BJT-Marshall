@@ -412,3 +412,42 @@ def test_travel_time():
     #Test if travel time returns zero when start_location = end_location
     assert c3.travel_time(l4,l4) == 0
 
+#---------------------------------------------------------------------------------------------------------------------------------------------------
+#Testing the 'fastest_trip_from' method of the 'Country' class.
+
+def test_fastest_trip_from():
+
+    l1 = Location("Name","Region",0,0,True)
+    l2 = Location("Aname","Aregion",2,0,False)
+    l3 = Location("Aname","Bregion",2,numpy.pi,False)
+    l4 = Location("Bname","Aregion",2,0,False)
+    l5 = Location("Bname","Bregion",4,0,False)
+    c1 = Country([l1,l2,l3,l4,l5])
+    l6 = Location("Name1","Region1",2,0,False)
+
+    with raises(ValueError) as exception:
+        c1.fastest_trip_from(l1,[l6])
+    with raises(ValueError) as exception:
+        c1.fastest_trip_from(l1, [l2,l6])
+
+    with raises(ValueError) as exception:
+        c1.fastest_trip_from(l1, [l2,3,2,8])
+        c1.fastest_trip_from(l1, [l2,-1])
+
+    #Testing the default arguments
+
+    assert c1.fastest_trip_from(l1) == (l2,c1.travel_time(l1,l2))
+
+    #Testing the optional argument
+
+    assert c1.fastest_trip_from(l1,[]) == (None, None)
+    #Test the tiebreaking
+
+    assert c1.fastest_trip_from(l1, [l2]) == (l2,c1.travel_time(l1,l2))
+
+    assert c1.fastest_trip_from(l1, [l2,l3]) == (l2,c1.travel_time(l1,l2))
+
+    assert c1.fastest_trip_from(l1, [l2,l4]) ==  (l2,c1.travel_time(l1,l2))
+
+    assert c1.fastest_trip_from(l1, [l2,l5]) ==  (l2,c1.travel_time(l1,l2))
+
