@@ -38,40 +38,10 @@ def travel_time(
     if type(speed) is int:
         speed = float(speed)
 
-    #Check input types
-    if type(distance) is not float:
-        raise TypeError("'distance' should be a float or integer value.")
-    if type(speed) is not float:
-        raise TypeError("'speed' should be a float or integer value.")
-    if type(different_regions) is not bool:
-        raise TypeError("'different_regions' should he a boolean value.")
-    if type(locations_in_dest_region) is not int:
-        raise TypeError("'locations_in_dest_region' should be an integer value.")
-
-    #Check input values
-    if distance<0:
-        raise ValueError("'distance' should be a positive value.")
-    if distance==0 and different_regions is True:
-        raise ValueError("If 'different regions' is True, then distance cannot be zero and visa versa.")
-    if distance==0 and different_regions is False and locations_in_dest_region !=1:
-        raise ValueError("If 'distance' is zero and 'different_regions' is false, then 'locations_in_dest_region' must be one.")
-    if distance!=0 and different_regions is False and locations_in_dest_region ==1:
-        raise ValueError("If 'locations_in_dest_region' is one and 'different_regions' is false, then 'distance' must be zero.")
-    if distance==0 and different_regions is True and locations_in_dest_region ==1:
-        raise ValueError("If 'distance' is zero and 'locations_in_dest_region' is one, then 'locations_in_dest_region' must be one.")    
-    if speed<=0:
-        raise ValueError("'speed' should be a positive, non-zero value for a finite time to be calculated.")
-    if locations_in_dest_region<1:
-        raise ValueError("'locations_in_dest_region' should be a positive value, greater than or equal to 1.")
-    
     #Implementation of travel time function
     one_hour_distance = 3600*speed
     optimal_time = distance/(one_hour_distance)
     time=optimal_time*(1+(different_regions*locations_in_dest_region)/10)
-    
-    #Check the final value of 'time' is greater than or equal to zero and therefore a valid travel time
-    if time<0:
-        raise ValueError("'time' has returned as a negative value")
     
     return time
 
@@ -96,14 +66,12 @@ def capitalisation_of_strings(string):
 
 def rounding_correction(x):
     """Rounding function to round the input to two decimal places correctly and overwrite the 'numpy.round' methods 'even-rounding' preference."""
-    decimal_factor = 100 #10**2 To round to 2 decimal places.
-    if type(x) is float:    
-        if x > 0:
-            return float(numpy.floor(x*decimal_factor+0.5))/decimal_factor 
-        else:
-            return float(numpy.ceil(x*decimal_factor-0.5))/decimal_factor
+    decimal_factor = 100 #10**2 To round to 2 decimal places.    
+    if x > 0:
+        return float(numpy.floor(x*decimal_factor+0.5))/decimal_factor 
     else:
-        raise TypeError("The input to 'rounding correction' should be a float value.")
+        return float(numpy.ceil(x*decimal_factor-0.5))/decimal_factor
+
 
 @dataclass
 class Location:
@@ -187,15 +155,12 @@ class Location:
     #Equity operator between two 'Location' objects.
     def __eq__(self, other):
         """Overloading the comparison operator '==' to compare the 'name' and 'region' attributes of two 'Location' objects."""
-        if type(other) is not Location:
-            raise TypeError("The other location parameter should be a 'Location' object.")
+        self_list = [self.name, self.region]
+        other_list = [other.name, other.region]
+        if self_list == other_list:
+            return True
         else:
-            self_list = [self.name, self.region]
-            other_list = [other.name, other.region]
-            if self_list == other_list:
-                return True
-            else:
-                return False
+            return False
             
     def __hash__(self) -> str:
         return hash(self.name + self.region)
@@ -213,8 +178,6 @@ class Location:
             return True
         elif self.depot is True:
             return False
-        else: 
-            raise TypeError("'depot' should be a boolean value to create the settlement property.")
     
     #The 'settlement' property. Always the boolean negation of the depot attribute.
     settlement = property(fget = _get_settlement, fset = None, fdel = None, doc = "A boolean property representing whether the Location object is a settlement or not.")
@@ -227,8 +190,6 @@ class Location:
             location_type_string = " [depot] "
         elif self.depot is False:
             location_type_string = " [settlement] "
-        else:
-            raise TypeError("'depot' should be a boolean value.")
         theta_in_pi = self.theta/numpy.pi #'theta' in units of pi
         if numpy.floor(theta_in_pi *100)%2 == 0 and str(int(numpy.floor(theta_in_pi *1000)))[-1] == "5":
             theta_rounded = rounding_correction(theta_in_pi)
@@ -242,15 +203,12 @@ class Location:
         """Calculates the distance between two location objects using their polar co-ordinates '(r,theta)'.
         The calculated distance is in the units of the polar radial co-ordinates 'r' of the objects passed into the method, meters."""
         
-        if type(other) is not Location:
-            raise TypeError("The other location parameter should be a 'Location' object.")
-        else:
-            #Calculating the distance using the formula: d = sqrt(r1^2 + r2^2 - 2r1r2 cos(theta1-theta2)).
-            other_attributes = other.__getattributes_r_theta__()
-            other_r = other_attributes[0]
-            other_theta = other_attributes[1]
-            calculated_distance = numpy.sqrt(self.r**2 + other_r**2 - 2*self.r*other_r * numpy.cos(self.theta - other_theta))
-            calculated_distance = float(calculated_distance)
+        #Calculating the distance using the formula: d = sqrt(r1^2 + r2^2 - 2r1r2 cos(theta1-theta2)).
+        other_attributes = other.__getattributes_r_theta__()
+        other_r = other_attributes[0]
+        other_theta = other_attributes[1]
+        calculated_distance = numpy.sqrt(self.r**2 + other_r**2 - 2*self.r*other_r * numpy.cos(self.theta - other_theta))
+        calculated_distance = float(calculated_distance)
         
         return calculated_distance
 
@@ -263,18 +221,13 @@ class Country:
 
     def __init__(self, list_of_locations):
         """Initialisation of a 'Country' object with the attribute '_all_locations' containing a tuple of 'Location' objects."""
-        if type(list_of_locations) is not list:
-            raise TypeError("The input parameter should be a list of 'Location' objects.")
-        else:
-            for i in range(len(list_of_locations)):
-                if isinstance(list_of_locations[i], Location) is False:
-                    raise TypeError("The inputted list should have 'Location' objects as its elements.")
-                else:
-                    index_list = [index for index in range(len(list_of_locations)) if index != i]
-                    for j in index_list:
-                        if list_of_locations[i] == list_of_locations[j]:
-                            raise ValueError("There exists duplicate 'Location' objects in the inputted list.")
-            self._all_locations = tuple(list_of_locations)
+
+        for i in range(len(list_of_locations)):        
+            index_list = [index for index in range(len(list_of_locations)) if index != i]
+            for j in index_list:
+                if list_of_locations[i] == list_of_locations[j]:
+                    raise ValueError("There exists duplicate 'Location' objects in the inputted list.")
+        self._all_locations = tuple(list_of_locations)
 
 
     #Settlements property.
@@ -282,9 +235,7 @@ class Country:
         """Given a country object with attribute '_all_locations' containing a list of 'Location' objects, returns the list of 'Location' objects with a 'True' 'settlement' property."""
         list_of_settlements = []
         for location in self._all_locations:
-            if type(location.settlement) is not bool:
-                raise TypeError("The 'settlement' property of the 'Location' objects in the '_all_locations' attribute should be boolean values.")
-            elif location.settlement is True:
+            if location.settlement is True:
                 list_of_settlements.append(location)
         return list_of_settlements
     settlements = property(fget=_get_settlements, fset=None ,fdel=None, doc="A list property containing the 'Location' objects with a 'True' 'settlement' property.")
@@ -302,9 +253,7 @@ class Country:
         """Given a country object with attribute '_all_locations' containing a list of 'Location' objects, returns the list of 'Location' objects with a 'True' 'depot' property."""
         list_of_depots = []
         for location in self._all_locations:
-            if type(location.depot) is not bool:
-                raise TypeError("The 'depot' attribute of the 'Location' objects in the '_all_locations' attribute should be boolean values.")
-            elif location.depot is True:
+            if location.depot is True:
                 list_of_depots.append(location)
         return list_of_depots
     depots = property(fget=_get_depots, fset=None ,fdel=None, doc="A list property containing the 'Location' objects with a 'True' 'depot' property.")
@@ -321,9 +270,7 @@ class Country:
     def travel_time(self, start_location, end_location):
         """Calculates the travel time between two locations represented by 'Location' objects, within a 'Country' object, using the 'travel_time' function. Returns the travel time in hours."""
         #Raise value errors if one, or both, of arguments are not elements of the 'Country' objects '_all_locations' attribute or 'Location' objects at all.
-        if isinstance(start_location, Location) is False or isinstance(end_location, Location) is False:
-            raise TypeError("Arguments of the 'travel_time' method should be 'Location' objects.")
-        elif start_location not in self._all_locations:
+        if start_location not in self._all_locations:
             raise ValueError("Arguments of the 'travel_time' method should be 'Location' objects in the 'Country' objects '_all_locations' attribute.")
         elif end_location not in self._all_locations:
             raise ValueError("Arguments of the 'travel_time' method should be 'Location' objects in the 'Country' objects '_all_locations' attribute.")
@@ -357,7 +304,6 @@ class Country:
             return (None, None)
 
         #Dealing with integer elements of the argument 'potential_locations'.
-        i = 0
         time_list = []
         for location in potential_locations:
             if isinstance(location, Location) is True and location not in self.settlements:
@@ -367,7 +313,6 @@ class Country:
                     location = self.settlements[location]
                 else:
                     raise ValueError("An integer element of 'potential_locations' is an out of bounds index for the 'Country' objects 'settlements' property.")
-            i +=1
             #Calculating the travel time between each 'potential_location' and 'current_location'.
             time_list.append(self.travel_time(current_location, location))
         
@@ -381,11 +326,11 @@ class Country:
             duplicate_names = [item for item in duplicates if item.name == min_name]
             duplicate_name_num = len(duplicate_names)
             if duplicate_name_num != 1:
-                regions = [item.region for item in potential_locations if item.name in names and self.travel_time(current_location,item) == min_time]
+                regions = [item.region for item in duplicates if item.name == min_name]
                 min_region = min(regions)
-                min_location = [location for location in potential_locations if location.name == min_name and location.region == min_region]
+                min_location = [location for location in duplicates if location.name == min_name and location.region == min_region]
             else:
-                min_location = [location for location in potential_locations if location.name == min_name and self.travel_time(current_location, location) == min_time]
+                min_location = [location for location in duplicates if location.name == min_name]
         else:
             min_location = duplicates
         min_location = min_location[0]
@@ -397,33 +342,85 @@ class Country:
 
 
     def nn_tour(self, starting_depot):
-        """Computes the neares neighbor algorithm for the settlements in the 'settlements' property of the 'Country' object, starting from a depot 'Location' object passed as the argument.
+        """Computes a tour using the nearest neighbor algorithm for the settlements in the 'settlements' property of the 'Country' object, starting from a depot 'Location' object passed as the argument.
         Returns a tuple where the first element is the list of locations, in order, of the tour, with start and end locations being the argument depot location. The second element is the total time of the tour, calculated by the 'travel_time' method of the 'Country' class."""
         tour = [starting_depot]
         if len(self.settlements) == 0:
-            tour = 0
             tour_time = 0
         else:
             tour_time = 0
-            unvisited = [[location, True] for location in self.settlements]
-            unvisited_loc = [location[0] for location in unvisited]
+            unvisited = [[location, True] for location in self.settlements] #List of all settlements paired with a boolean value ina list
+            unvisited_loc = [list[0] for list in unvisited] #List of all settlements
             current_location = starting_depot
             for location in unvisited:
-                next_stop = self.fastest_trip_from(current_location, unvisited_loc)    
-                tour.append(next_stop[0])
-                tour_time = tour_time + next_stop[1]
-                current_location = next_stop[0]
+                next_stop = self.fastest_trip_from(current_location, unvisited_loc) #next stop is the fastest trip possible between current_location and the list unvisited_loc 
+                tour.append(next_stop[0]) #append the tour with the location object of the next stop
+                tour_time = tour_time + next_stop[1] #add the time travelled to the tour time
+                current_location = next_stop[0] #current location is now the next_stop location
                 #Removing the visited settlement from the list of unvisited settlements.
-                location[1] = False
-                unvisited = [locations for locations in unvisited if locations[1] is True]
-                unvisited_loc = [location[0] for location in unvisited]
+                #Finding the new current location in unvisited and setting its boolean marker to False
+                for element in unvisited:
+                    if element[0] == next_stop[0]:
+                        element[1] = False
+                unvisited = [locations for locations in unvisited if locations[1] is True] #Recreates the unvisited list without the current_location
+                unvisited_loc = [location[0] for location in unvisited] #Recreates the unvisited_loc from the recreated unvisited.
         #Finishing the tour.
-        tour_time = tour_time + self.travel_time(tour[-1], starting_depot)
-        tour.append(starting_depot)
+        tour_time = tour_time + self.travel_time(tour[-1], starting_depot) #Adding the final leg of the tour from the last settlement to the starting deopt
+        tour.append(starting_depot) #Adding the starting depot onto the end of the tour
         return tour, tour_time
 
-    def best_depot_site(self, display):
-        raise NotImplementedError
+    def best_depot_site(self, display=True):
+        """Computes the 'depot' 'Location' object that produces the minimal length tour of all 'settlement' 'Location' objects in the '_all_locations' attribute, using the nearest neighbor algorithm.
+        If the argument 'display' is set to False: returns the 'Location' objects found to be the starting depot for this minimal length tour. 
+        If the argument 'display' is set to True (default value): returns the same location object along with the 'Location' objects at every step of the tour, in order. Additionally, returns the length, in hours, of the tour."""
+        #Error if the 'Country' object has no 'depot' 'Location' objects.
+        if self.depots == []:
+            raise ValueError("This 'Country' object contains no 'Location' objects that are defined to be depots.")
+        
+        #Computing the tour with the minimum travel time.
+        tours = []
+        tour_times = []
+        for depot in self.depots:
+            Tour,Time = self.nn_tour(depot)
+            tours.append(Tour)
+            tour_times.append(Time)
+        min_tour_time = min(tour_times)
+        tour_time = round(min_tour_time,2)
+        
+        #Dealing with duplicate tours
+        duplicate_index = [i for i in range(len(tours)) if tour_times[i] == min_tour_time]
+        duplicates = [tours[i] for i in duplicate_index]
+        duplicate_time_num = len(duplicates)
+        #In the event of a tie in tour travel time.
+        if duplicate_time_num != 1:
+            duplicate_depots = [tied_tour[0] for tied_tour in duplicates]
+            names = [depot.name for depot in duplicate_depots]
+            min_name = min(names)
+            duplicate_names = [item for item in duplicate_depots if item.name == min_name]
+            #Further tie with the 'name' attribute.
+            if len(duplicate_names) != 1:
+                regions = [item.region for item in duplicate_depots if item.name in duplicate_names and self.nn_tour(item) == min_tour_time]
+                min_region = min(regions)
+                min_tour = [tour for tour in duplicates if tour[0].name == min_name and tour[0].region == min_region]
+            else:
+                min_tour = [tour for tour in duplicates if tour[0].name == min_name and self.nn_tour(tour[0]) == min_tour_time]
+        else:
+            min_tour = duplicates[0]
+            best_depot = min_tour[0]
+
+
+        #Handling the 'display' argument to determine the output of the method.
+        if display is True:
+            start_tour_string = "Best deopt: "+ str(best_depot)+"\nNNA tour is:\n"
+            settlement_list_string = ["  "+str(min_tour[i])+"\n" for i in range (len(min_tour))]
+            settlement_string = ""
+            for item in settlement_list_string:
+                settlement_string = settlement_string + item
+            end_tour_string = "Which will take "+str(tour_time)+" h to complete."
+            total_string = start_tour_string + settlement_string + end_tour_string
+            print(total_string)
+        elif display is False:
+            return best_depot
 
     def plot_country(
         self,

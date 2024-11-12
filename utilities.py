@@ -10,22 +10,18 @@ import pathlib
 
 def fileline_to_tuple(line):
     """Converts a line in a .csv file to a tuple of the lines comma seperated elements."""
-    if type(line) is not str:
-        raise TypeError("The argument of the 'fileline_to_tuple' function should be a string.")
-    else:
-        list_of_data = line.split(",")
-        last_catagory = list_of_data[-1]
-        last_data = last_catagory[:-1]
-        list_of_data[-1] = last_data
-        for i in range(len(list_of_data)):
-            list_of_data[i] = list_of_data[i].strip()
-        data_tuple = tuple(list_of_data)
-        return data_tuple
+    
+    list_of_data = line.split(",")
+    last_catagory = list_of_data[-1]
+    last_data = last_catagory[:-1]
+    list_of_data[-1] = last_data
+    for i in range(len(list_of_data)):
+        list_of_data[i] = list_of_data[i].strip()
+    data_tuple = tuple(list_of_data)
+    return data_tuple
 
 def read_country_data(filepath):
     """Creates an instance of the 'Country' class using the 'Location' class data held in an external .csv file passed as a 'Path' object as the argument to this function."""
-    if isinstance(filepath, pathlib.Path) is False:
-        raise TypeError("The argument to the 'read_country_data' function should be a 'Path' object.")
     data_file = open(filepath)
     num_lines = sum(1 for line in data_file)
     data_file.seek(0)

@@ -10,36 +10,33 @@ import matplotlib
 #Testing travel_time
 from country import travel_time
 #Testing incorrect parameter type errors are thrown correctly
-def test_travel_time_input_types():
-    """Tests that each parameter has been passed as the correct type."""
-    with raises(TypeError) as exception:
-        travel_time(True,True,2)
-    with raises(TypeError) as exception:
-        travel_time(4,2,2)
-    with raises(TypeError) as exception:
-        travel_time(4,True,True)
-    with raises(TypeError) as exception:
-        travel_time(4,True,2,True)
+def test_travel_time_function():
+    #Testing the 'travel_time' function from the 'country.py' file.
+    
+    #Testing that travelling zero distance returns zero time
+    assert travel_time(0,False,1) == 0
+    
+    #For 'different_region == False', t = D/3600S 
+    
+    #Default speed, same region test:
+    one_hour_distance = 3600*4.75 #default speed is 4.75m/s
+    distance_list = [1,3600,4.75,100,-24000]
+    for d in distance_list:
+        assert travel_time(d,False,1) == d/one_hour_distance
 
-#Testing incorrect parameter value errors are thrown correctly    
-def test_travel_time_values():
-    """Tests that each parameter has been passed a sensible value. i.e. that distance and time are positive values."""
-    with raises(ValueError) as exception:
-        travel_time(-4,True,2)
-    with raises(ValueError) as exception:
-        travel_time(0,True,2)
-    with raises(ValueError) as exception:
-        travel_time(0,False,2)
-    with raises(ValueError) as exception:
-        travel_time(4,False,1)
-    with raises(ValueError) as exception:
-        travel_time(0,True,1)
-    with raises(ValueError) as exception:
-        travel_time(4,True,2,0)
-    with raises(ValueError) as exception:
-        travel_time(4,True,2,-4)
-    with raises(ValueError) as exception:
-        travel_time(4,True,0)
+    #Non-default speed, same region test:
+    speed_list = [1,4.5,10,100]
+    for s in speed_list:
+        assert travel_time(100,False,1,speed=s) == 100/(3600*s)
+    
+    assert travel_time(100,False,1) == travel_time(100,False,1,speed=4.75)
+
+    #Different region factor test:
+    #General form: travel_time(d,True,N,s) = travel_time(d,False,N,s) + 0.1N *travel_time(d,False,N,s)
+    locations_list = [1,3,5,10]
+    
+    for N in locations_list:
+        assert travel_time(100,True,N) == (1+N/10)*travel_time(100,False,N)
 
 #-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -103,23 +100,12 @@ def test_settlement():
     l2.depot = True
     assert l2.settlement != l2.depot
 
-    #Tests incorrect parameter type errors are thrown correctly
-    l1.depot = 3
-    with raises(TypeError) as exception:
-        print(l1.settlement)
 
 #-------------------------------------------------------------------------------------------------------------------------------------------------------
 #Testing 'rounding_correction' function
 from country import rounding_correction
 def test_rounding_correction():
     """Tests that the 'rounding_correction' function returns correct values and raises paraneter type errors if the input is not a float."""
-    #Testing type errors are raised correctly.
-    with raises(TypeError) as exception:
-        rounding_correction(True)
-    with raises(TypeError) as excpetion:
-        rounding_correction(4)
-    with raises(TypeError) as exception:
-        rounding_correction("string")
     #Testing that outputs returned are correct.
 
     assert rounding_correction(1.503) ==1.5
@@ -137,12 +123,6 @@ def test_Location___str__():
     assert str(test_obj) == "Name [depot] in Region @ (3.0m, 1.0pi)"
     test_obj.depot = False
     assert str(test_obj) == "Name [settlement] in Region @ (3.0m, 1.0pi)"
-
-    #Testing that setting 'depot' to a non boolean value throws a type error
-    test_obj.depot = 2
-    with raises(TypeError) as exception:
-        print(test_obj)
-    test_obj.depot = False
 
     #Testing that the rounding of the attribute 'theta' is performed and displayed correctly in the output of the '__str__' method.
 
@@ -172,10 +152,6 @@ def test_distance_to():
     test_obj = Location("Name", "Region", 3, 0, True)
     test_obj1 = Location("Name", "Region", 3, 0, True)
     
-    #Testing that parameter type errors are thrown correctly.
-    with raises(TypeError) as exception:
-        test_obj.distance_to("string")
-
     #Testing that the method calculates the correct values.
     
     #Testing that parralel locations will return the difference in 'r' co-ordinates as their distance.
@@ -225,10 +201,6 @@ def test___eq__():
     """Testing the '__eq__' method in the 'Location' class"""
     test_obj = Location("Name", "Region",3,3,True)
     
-    #Testing that the other location parameter type error is thrown correctly.
-    with raises(TypeError) as exception:
-        test_obj == "String"
-
     test_obj1 = Location("Name", "Region1",3,3,True)
     test_obj2 = Location("Name", "Region",3,3,True)
     test_obj3 = Location("Name3", "Region3",3,3,True)
@@ -251,18 +223,19 @@ def test_Country___init__():
     test_location3 = Location("Name3", "Region3", 3, 3, True)
     list1 = [test_location1, test_location2, test_location3]
     list2 = [test_location1, test_location2, test_location3,test_location1]
-
-    #Testing that parmeter type errors are thrown correctly.
-    with raises(TypeError) as exception:
-        test_country = Country("string")
-    
+    list3 = [test_location1,test_location1]
+    list4 = [test_location1]
+ 
     #Testing that the '_all_locations' attribute is created correctly.
     test_country1 = Country(list1)
+    test_country4 = Country(list4)
     assert test_country1._all_locations == (test_location1,test_location2,test_location3)
+    assert test_country4._all_locations == (test_location1)
 
     #Testing the duplicated location error is thrown correctly.
     with raises(ValueError) as exception:
         test_country2 = Country(list2)
+        test_country3 = Country(list3)
 
 #------------------------------------------------------------------------------------------------------------------------------------------------------
 from utilities import fileline_to_tuple
@@ -270,10 +243,6 @@ from utilities import fileline_to_tuple
 
 def test_fileline_to_tuple():
     """Testing the 'fileline_to_tuple' function from the 'utilities.py' file."""
-
-    #Testing that the parameter type error is thrown correctly.
-    with raises(TypeError) as exception:
-        fileline_to_tuple(6)
 
     assert fileline_to_tuple("Name, Region, r, theta, depot\n") == ("Name", "Region", "r", "theta", "depot")
     assert fileline_to_tuple("Name  , Region, r ,    theta, depot\n") == ("Name", "Region", "r", "theta", "depot")
@@ -286,17 +255,15 @@ import pathlib
 
 def test_read_country_data():
     """Testing the 'read_country_data' function from the 'utilities.py' file."""
-    #Testing that the parameter type error is thrown correcttly.
-    with raises(TypeError) as exception:
-        read_country_data("string")
 
     #Testing the function produces the correct outputs    
-    with raises(TypeError) as exception:
-        locations_path = "locations.csv"
-        data_obj=read_country_data(locations_path)
-        assert str(data_obj._all_locations[0]) == "Darkwater Crossing [depot] in Eastmarch @ (125123.04863613259m, -0.09pi)"
-        test_location_obj = Location("Darkwater Crossing", "Eastmarch", 125123.04863613259,-0.2748108313066159,True)
-        assert data_obj._all_locations[0] == test_location_obj
+    import os
+    location_data = [file for file in os.path.dirname(os.getcwd()).join("data") if ".csv" in file]
+    locations_path = location_data[0]
+    data_obj=read_country_data(locations_path)
+    assert str(data_obj._all_locations[0]) == "Darkwater Crossing [depot] in Eastmarch @ (125123.04863613259m, -0.09pi)"
+    test_location_obj = Location("Darkwater Crossing", "Eastmarch", 125123.04863613259,-0.2748108313066159,True)
+    assert data_obj._all_locations[0] == test_location_obj
     
 #------------------------------------------------------------------------------------------------------------------------------------------------
 #Testing the 'settlements' property of the 'Country' class.
@@ -381,14 +348,6 @@ def test_travel_time():
     l1 = Location("Name1","Region1",1,1,True)
     l2 = Location("Name2","Region2",1,1,False)
     c1 = Country([l1,l2])
-    
-    #Testing argument type errors are thrown correctly.
-    with raises(TypeError) as exception:
-        c1.travel_time(l1,3)
-    with raises(TypeError) as exception:    
-        c1.travel_time(3,l2)
-    with raises(TypeError) as exception:
-        c1.travel_time(3,3)
     
     l3 = Location("Name3","Region3",1,1,True)
 
