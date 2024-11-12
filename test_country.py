@@ -437,11 +437,41 @@ def test_nn_tour():
     expected_time2 = country.travel_time(depot2,D) + country.travel_time(D,C) + country.travel_time(C,B) + country.travel_time(B,A) + country.travel_time(A, depot2)
     assert test_time1 == expected_time1
     assert test_time2 == expected_time2
+
+    #Using the provided 'locations.csv' data as a test case.
+    import os    
+    import glob
+    list = []
+    path = os.getcwd() + "\\**\\locations.csv"
+    for filename in glob.iglob(path, recursive = True):
+        list.append(filename)
+    skyrim=read_country_data(list[0])
+    tour, tour_time = skyrim.nn_tour(skyrim.depots[-1])
+    assert [str(item) for item in tour] == ["Whiterun Stables [depot] in Whiterun Hold @ (21192.67621137076m, -0.17pi)", "Whiterun [settlement] in Whiterun Hold @ (21197.215713390284m, -0.11pi)", "Riverwood [settlement] in Whiterun Hold @ (49877.15654485528m, -0.36pi)", "Helgen [settlement] in Falkreath Hold @ (81145.25162324657m, -0.44pi)", "Falkreath [settlement] in Falkreath Hold @ (91448.21634127152m, -0.61pi)", "Ivarstead [settlement] in The Rift @ (99814.19635502757m, -0.22pi)", "Riften [settlement] in The Rift @ (198505.21964170111m, -0.16pi)", "Kynesgrove [settlement] in Eastmarch @ (135427.24553796405m, 0.03pi)", "Windhelm [settlement] in Eastmarch @ (139639.41809174084m, 0.08pi)", "Winterhold [settlement] in Winterhold @ (150024.6305111264m, 0.24pi)", "Dawnstar [settlement] in The Pale @ (110518.81246195147m, 0.41pi)", "Solitude [settlement] in Haafingar @ (123161.67079493523m, 0.68pi)", "Dragon Bridge [settlement] in Haafingar @ (131554.6422746077m, 0.78pi)", "Rorikstead [settlement] in Whiterun Hold @ (84588.16411295377m, 0.97pi)", "Markarth [settlement] in The Reach @ (174103.32449726513m, 0.99pi)", "Whiterun Stables [depot] in Whiterun Hold @ (21192.67621137076m, -0.17pi)"]
 #----------------------------------------------------------------------------------------------------------------------------------------------------
 #Testing the 'best_depot_site' method of the 'Country' class.
 
 def test_best_depot_site():
     """Testing the 'best_depot_site' method of the 'Country' class."""
-    raise NotImplementedError
+    #Creating test 'Country' objects.
+    A = Location("A","One",50,5*numpy.pi/8,False)
+    B = Location("B","One",0,0,False)
+    C = Location("C","Two",100,-3*numpy.pi/4,False)
+    D = Location("D","Two",200,-numpy.pi/4,False)
+    depot1 = Location("Depotone","One",100,numpy.pi/4,True)
+    depot2 = Location("Depottwo","Two",100,-numpy.pi/8,True)
+    country = Country([A,B,C,D,depot1,depot2])
+    assert country.best_depot_site(display=False) == depot2
+    
+    #Using the provided 'locations.csv' data as a test case.
+    import os    
+    import glob
+    list = []
+    path = os.getcwd() + "\\**\\locations.csv"
+    for filename in glob.iglob(path, recursive = True):
+        list.append(filename)
+    skyrim=read_country_data(list[0])
+    assert skyrim.best_depot_site(display=False) == Location("Whiterun Stables", "Whiterun Hold",21192.67621137076, -0.17*numpy.pi,True)
+    
 
 
