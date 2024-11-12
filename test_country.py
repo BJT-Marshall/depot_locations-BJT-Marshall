@@ -229,8 +229,8 @@ def test_Country___init__():
     #Testing that the '_all_locations' attribute is created correctly.
     test_country1 = Country(list1)
     test_country4 = Country(list4)
-    assert test_country1._all_locations == (test_location1,test_location2,test_location3)
-    assert test_country4._all_locations == (test_location1)
+    assert test_country1._all_locations == tuple(list1)
+    assert test_country4._all_locations == tuple(list4)
 
     #Testing the duplicated location error is thrown correctly.
     with raises(ValueError) as exception:
@@ -256,11 +256,14 @@ import pathlib
 def test_read_country_data():
     """Testing the 'read_country_data' function from the 'utilities.py' file."""
 
-    #Testing the function produces the correct outputs    
-    import os
-    location_data = [file for file in os.path.dirname(os.getcwd()).join("data") if ".csv" in file]
-    locations_path = location_data[0]
-    data_obj=read_country_data(locations_path)
+    #Testing the function produces the correct outputs
+    import os    
+    import glob
+    list = []
+    path = os.getcwd() + "\\**\\locations.csv"
+    for filename in glob.iglob(path, recursive = True):
+        list.append(filename)
+    data_obj=read_country_data(list[0])
     assert str(data_obj._all_locations[0]) == "Darkwater Crossing [depot] in Eastmarch @ (125123.04863613259m, -0.09pi)"
     test_location_obj = Location("Darkwater Crossing", "Eastmarch", 125123.04863613259,-0.2748108313066159,True)
     assert data_obj._all_locations[0] == test_location_obj
@@ -409,4 +412,36 @@ def test_fastest_trip_from():
     assert c1.fastest_trip_from(l1, [l2,l4]) ==  (l2,c1.travel_time(l1,l2))
 
     assert c1.fastest_trip_from(l1, [l2,l5]) ==  (l2,c1.travel_time(l1,l2))
+
+#-------------------------------------------------------------------------------------------------------------------------------------------
+#Testing the 'nn_tour' method of the 'Country' class.
+
+def test_nn_tour():
+    """Testing the 'nn_tour' method of the 'Country' class."""
+    #Creating test 'Country' objects.
+    A = Location("A","One",50,5*numpy.pi/8,False)
+    B = Location("B","One",0,0,False)
+    C = Location("C","Two",100,-3*numpy.pi/4,False)
+    D = Location("D","Two",200,-numpy.pi/4,False)
+    depot1 = Location("Depotone","One",100,numpy.pi/4,True)
+    depot2 = Location("Depottwo","Two",100,-numpy.pi/8,True)
+    country = Country([A,B,C,D,depot1,depot2])
+
+    #NN tour from depot1 is 1,A,B,C,D,1, NN tour from depot 2 is 2,D,C,B,A,2.
+    test_tour1, test_time1 = country.nn_tour(depot1)
+    assert test_tour1 == [depot1,A,B,C,D,depot1]
+    test_tour2, test_time2 = country.nn_tour(depot2)
+    assert test_tour2 == [depot2,D,C,B,A,depot2]
+
+    expected_time1 = country.travel_time(depot1,A) + country.travel_time(A,B) + country.travel_time(B,C) + country.travel_time(C,D) + country.travel_time(D, depot1)
+    expected_time2 = country.travel_time(depot2,D) + country.travel_time(D,C) + country.travel_time(C,B) + country.travel_time(B,A) + country.travel_time(A, depot2)
+    assert test_time1 == expected_time1
+    assert test_time2 == expected_time2
+#----------------------------------------------------------------------------------------------------------------------------------------------------
+#Testing the 'best_depot_site' method of the 'Country' class.
+
+def test_best_depot_site():
+    """Testing the 'best_depot_site' method of the 'Country' class."""
+    raise NotImplementedError
+
 
